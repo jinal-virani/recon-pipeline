@@ -1,0 +1,13 @@
+# System-level dependencies (installed via install.sh / apt)
+# python3
+# python3-pip
+# python3-venv
+golang-go
+git
+curl
+# Security tools (preferred via apt on Kali, otherwise go install):
+# subfinder        -> apt: subfinder   | go: github.com/projectdiscovery/subfinder/v2/cmd/subfinder
+# httpx-toolkit    -> apt: httpx-toolkit | go: github.com/projectdiscovery/httpx/cmd/httpx
+# dnsx             -> apt: dnsx        | go: github.com/projectdiscovery/dnsx/cmd/dnsx
+# katana           -> apt: katana      | go: github.com/projectdiscovery/katana/cmd/katana
+# mantra           -> (no apt pkg)     | go: github.com/Brosck/mantra

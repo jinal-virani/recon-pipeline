@@ -1,0 +1,5 @@
+# Python dependencies (runtime)
+PyYAML>=6.0
+
+# Development / test only
+pytest>=7.0

@@ -1,0 +1,25 @@
+httpx:
+  threads: 25
+  timeout: 10
+  status_code: true
+  title: true
+  tech_detect: true
+  web_server: true
+  content_length: true
+  location: false
+
+dnsx:
+  threads: 25
+
+katana:
+  depth: 2
+  concurrency: 5
+
+mantra:
+  enabled: true
+
+output:
+  directory: output
+
+logging:
+  level: INFO
