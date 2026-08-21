@@ -37,7 +37,7 @@ your own actions.
 2. Validates DNS resolution (dnsx)
 3. Probes live HTTP/HTTPS services (httpx-toolkit / httpx)
 4. Crawls confirmed-live URLs (katana)
-5. Scans JavaScript assets for leaked secrets (mantra)
+<!-- 5. Scans JavaScript assets for leaked secrets (mantra) -->
 
 Every stage writes to a **timestamped output directory**, keeps raw and clean
 results separate, logs everything, and never hides errors.

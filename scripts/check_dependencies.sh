@@ -5,7 +5,7 @@
 #
 set -u
 
-REQUIRED_CMDS=(python3 go subfinder dnsx katana mantra)
+REQUIRED_CMDS=(python3 go subfinder dnsx katana)
 # httpx-toolkit OR httpx (either satisfies the httpx requirement)
 REQUIRED_HTTPX=(httpx-toolkit httpx)
 

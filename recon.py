@@ -43,7 +43,7 @@ TOOLS: Dict[str, List[str]] = {
     "httpx": ["httpx-toolkit", "httpx"],  # Kali package name first, PD upstream second
     "dnsx": ["dnsx"],
     "katana": ["katana"],
-    "mantra": ["mantra"],
+    # "mantra": ["mantra"],
 }
 
 # Go module paths used by --update.
@@ -51,8 +51,8 @@ GO_MODULES: Dict[str, str] = {
     "subfinder": "github.com/projectdiscovery/subfinder/v2/cmd/subfinder",
     "httpx": "github.com/projectdiscovery/httpx/cmd/httpx",
     "dnsx": "github.com/projectdiscovery/dnsx/cmd/dnsx",
-    "katana": "github.com/projectdiscovery/katana/cmd/katana",
-    "mantra": "github.com/Brosck/mantra",
+    "katana": "github.com/projectdiscovery/katana/cmd/katana@latest",
+    # "mantra": "github.com/Brosck/mantra",
 }
 
 DEFAULT_CONFIG: Dict[str, Any] = {
@@ -68,7 +68,7 @@ DEFAULT_CONFIG: Dict[str, Any] = {
     },
     "dnsx": {"threads": 25, "timeout": 10},
     "katana": {"depth": 2, "concurrency": 5, "timeout": 30},
-    "mantra": {"enabled": True},
+    # "mantra": {"enabled": True},
     "output": {"directory": "output"},
     "logging": {"level": "INFO"},
 }
@@ -466,33 +466,33 @@ def stage_katana(
     return st
 
 
-def stage_mantra(
-    binary: str, scan_dir: Path, logger: logging.Logger
-) -> StageResult:
-    st = StageResult(name="mantra")
-    output_file = scan_dir / "mantra.txt"
-    js_urls = extract_js_urls(read_lines(scan_dir / "katana.txt"))
-    if not js_urls:
-        st.status, st.message = "SKIPPED", "no JavaScript URLs found in katana output"
-        logger.warning("mantra skipped: no JS URLs to scan.")
-        return st
-    logger.info("Scanning %d JS URL(s) for leaked secrets (mantra)...", len(js_urls))
-    try:
-        result = run_command(
-            [binary], timeout=300, input_data="\n".join(js_urls), logger=logger
-        )
-    except ReconError as exc:
-        st.status, st.message = "FAILED", str(exc)
-        return st
-    if result.returncode != 0:
-        st.status = "FAILED"
-        st.message = f"exit={result.returncode}: {result.stderr.strip()[:300]}"
-        return st
-    results = [ln for ln in result.stdout.splitlines() if ln.strip()]
-    write_lines(output_file, results)
-    st.status, st.count, st.output_file = "SUCCESS", len(results), output_file
-    logger.info("Mantra results: %d", len(results))
-    return st
+# def stage_mantra(
+#     binary: str, scan_dir: Path, logger: logging.Logger
+# ) -> StageResult:
+#     st = StageResult(name="mantra")
+#     output_file = scan_dir / "mantra.txt"
+#     js_urls = extract_js_urls(read_lines(scan_dir / "katana.txt"))
+#     if not js_urls:
+#         st.status, st.message = "SKIPPED", "no JavaScript URLs found in katana output"
+#         logger.warning("mantra skipped: no JS URLs to scan.")
+#         return st
+#     logger.info("Scanning %d JS URL(s) for leaked secrets (mantra)...", len(js_urls))
+#     try:
+#         result = run_command(
+#             [binary], timeout=300, input_data="\n".join(js_urls), logger=logger
+#         )
+#     except ReconError as exc:
+#         st.status, st.message = "FAILED", str(exc)
+#         return st
+#     if result.returncode != 0:
+#         st.status = "FAILED"
+#         st.message = f"exit={result.returncode}: {result.stderr.strip()[:300]}"
+#         return st
+#     results = [ln for ln in result.stdout.splitlines() if ln.strip()]
+#     write_lines(output_file, results)
+#     st.status, st.count, st.output_file = "SUCCESS", len(results), output_file
+#     logger.info("Mantra results: %d", len(results))
+#     return st
 
 
 # ---------------------------------------------------------------------------
@@ -521,7 +521,7 @@ def generate_summary(
         f"HTTP Services:   {counts.get('http', 0)}",
         f"Live URLs:       {counts.get('live_urls', 0)}",
         f"Katana URLs:     {counts.get('katana', 0)}",
-        f"Mantra Results:  {counts.get('mantra', 0)}",
+        # f"Mantra Results:  {counts.get('mantra', 0)}",
         "",
         "Stages:",
     ]
@@ -553,7 +553,7 @@ def print_terminal_summary(
     print(f" HTTP Services: {counts['http']}")
     print(f" Live URLs:     {counts['live_urls']}")
     print(f" Katana URLs:   {counts['katana']}")
-    print(f" Mantra:        {counts['mantra']}")
+    # print(f" Mantra:        {counts['mantra']}")
     if interrupted:
         print(" Note:          interrupted by user (Ctrl+C)")
     print("\n Results:")
@@ -605,7 +605,7 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> Tuple[argparse.Namespace
     parser.add_argument("--threads", type=int, default=None, help="override default thread/concurrency count")
     parser.add_argument("--skip-dnsx", action="store_true", help="skip DNS resolution stage")
     parser.add_argument("--skip-katana", action="store_true", help="skip web crawling stage")
-    parser.add_argument("--skip-mantra", action="store_true", help="skip mantra secret-scanning stage")
+    # parser.add_argument("--skip-mantra", action="store_true", help="skip mantra secret-scanning stage")
     parser.add_argument("--update", action="store_true", help="update Go-installed tools and exit")
     parser.add_argument("--verbose", action="store_true", help="enable DEBUG logging")
     parser.add_argument("--config", default="config.yaml", help="path to config.yaml")
@@ -688,15 +688,15 @@ def run_pipeline(
             stages.append(stage_katana(deps["katana"], scan_dir, logger, cfg))
 
         # -- mantra -------------------------------------------------------
-        katana_urls = read_lines(scan_dir / "katana.txt")
-        if args.skip_mantra:
-            stages.append(StageResult("mantra", "SKIPPED", message="--skip-mantra"))
-            logger.warning("mantra skipped (--skip-mantra).")
-        elif not katana_urls:
-            stages.append(StageResult("mantra", "SKIPPED", message="no katana URLs to scan"))
-            logger.warning("mantra skipped: no katana output available.")
-        else:
-            stages.append(stage_mantra(deps["mantra"], scan_dir, logger))
+        # katana_urls = read_lines(scan_dir / "katana.txt")
+        # if args.skip_mantra:
+        #     stages.append(StageResult("mantra", "SKIPPED", message="--skip-mantra"))
+        #     logger.warning("mantra skipped (--skip-mantra).")
+        # elif not katana_urls:
+        #     stages.append(StageResult("mantra", "SKIPPED", message="no katana URLs to scan"))
+        #     logger.warning("mantra skipped: no katana output available.")
+        # else:
+        #     stages.append(stage_mantra(deps["mantra"], scan_dir, logger))
     except KeyboardInterrupt:
         interrupted = True
         logger.error("Interrupted by user (Ctrl+C). Preserving partial results...")
@@ -715,7 +715,7 @@ def run_pipeline(
         "http": len(read_lines(scan_dir / "httpx.txt")),
         "live_urls": len(read_lines(scan_dir / "live_urls.txt")),
         "katana": len(read_lines(scan_dir / "katana.txt")),
-        "mantra": len(read_lines(scan_dir / "mantra.txt")),
+        # "mantra": len(read_lines(scan_dir / "mantra.txt")),
     }
 
     finished = datetime.now()
