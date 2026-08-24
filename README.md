@@ -1,5 +1,4 @@
 <div align="center">
-
 # 🛰️ recon-pipeline
 
 **Automated Subdomain Reconnaissance Pipeline for Authorized Security Assessments**
@@ -45,7 +44,6 @@ it automatically:
 | 2 | `dnsx` | Checks which subdomains actually resolve in DNS |
 | 3 | `httpx-toolkit` | Probes which ones have live HTTP/HTTPS websites |
 | 4 | `katana` | Crawls the live websites to discover URLs |
-| 5 | `mantra` | Scans JavaScript files for leaked API keys/secrets |
 
 Every result is saved in an organized, timestamped folder. Nothing is
 overwritten, everything is logged.
@@ -106,12 +104,5 @@ tool.
         └──────────────┘
                 │
                 ▼
-        katana.txt
-                │
-                ▼
-        ┌──────────────┐
-        │    mantra    │  → Scans JS files for secrets
-        └──────────────┘
-                │
-                ▼
-        mantra.txt + summary.txt
+        katana.txt + summary.txt
+      
