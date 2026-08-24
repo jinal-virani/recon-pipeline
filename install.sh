@@ -106,7 +106,7 @@ verify_all() {
   echo "========================================"
   for t in subfinder httpx-toolkit httpx dnsx katana; do
     if command -v "$t" >/dev/null 2>&1; then
-      echo "[+] $t: $("$t" -version 2>&1 | head -n1 || true)"
+      echo "[+] $t: $("$t" -version | head -n1 || true)"
     fi
   done
   echo ""
@@ -124,9 +124,9 @@ main() {
   $SUDO apt-get update
   ensure_python
   ensure_go
-  ensure_tool subfinder "github.com/projectdiscovery/subfinder/v2/cmd/subfinder" subfinder
+  ensure_tool subfinder "github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest" subfinder
   ensure_httpx
-  ensure_tool dnsx "github.com/projectdiscovery/dnsx/cmd/dnsx" dnsx
+  ensure_tool dnsx "github.com/projectdiscovery/dnsx/cmd/dnsx@latest" dnsx
   ensure_tool katana "github.com/projectdiscovery/katana/cmd/katana@latest" katana
 #   ensure_tool mantra "github.com/Brosck/mantra"
   verify_all

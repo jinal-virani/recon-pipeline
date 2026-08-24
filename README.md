@@ -1,70 +1,117 @@
-# recon-pipeline<div align="center">
+<div align="center">
 
 # 🛰️ recon-pipeline
 
-**Automated subdomain reconnaissance pipeline for authorized security assessments**
-
-`python3 recon.py example.com` → subdomains → DNS validation → HTTP probing → crawling → secret scanning
+**Automated Subdomain Reconnaissance Pipeline for Authorized Security Assessments**
 
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)]()
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Kali Linux](https://img.shields.io/badge/Kali%20Linux-Ready-black.svg)]()
 
+**One command: `python3 recon.py example.com`**
+
 </div>
 
 ---
 
-## ⚠️ Legal / Ethical Disclaimer
+## 📋 Table of Contents
+
+1. [What is recon-pipeline?](#-what-is-recon-pipeline)
+2. [⚠️ Legal Disclaimer — READ FIRST](#️-legal-disclaimer--read-first)
+3. [How the Pipeline Works](#-how-the-pipeline-works)
+4. [System Requirements](#-system-requirements)
+5. [Step-by-Step Installation](#-step-by-step-installation)
+6. [Verify Installation](#-verify-installation)
+7. [How to Run a Scan](#-how-to-run-a-scan)
+8. [All CLI Options](#-all-cli-options)
+9. [Output Files Explained](#-output-files-explained)
+10. [Configuration (config.yaml)](#-configuration-configyaml)
+11. [Troubleshooting Guide](#-troubleshooting-guide)
+12. [Running Tests](#-running-tests)
+13. [Pushing to GitHub](#-pushing-to-github)
+14. [License](#-license)
+
+---
+
+## 📖 What is recon-pipeline?
+
+`recon-pipeline` is a **single-command automated reconnaissance tool** for
+authorized security testing. You give it ONE domain (e.g. `example.com`), and
+it automatically:
+
+| Step | Tool | What it does |
+|------|------|--------------|
+| 1 | `subfinder` | Finds all subdomains (e.g. `api.example.com`, `admin.example.com`) |
+| 2 | `dnsx` | Checks which subdomains actually resolve in DNS |
+| 3 | `httpx-toolkit` | Probes which ones have live HTTP/HTTPS websites |
+| 4 | `katana` | Crawls the live websites to discover URLs |
+| 5 | `mantra` | Scans JavaScript files for leaked API keys/secrets |
+
+Every result is saved in an organized, timestamped folder. Nothing is
+overwritten, everything is logged.
+
+---
+
+## ⚠️ Legal Disclaimer — READ FIRST
 
 **This tool is intended ONLY for:**
-- Domains and systems you **own**
-- **Authorized penetration tests** with written permission
-- **Bug-bounty targets** explicitly within scope
-- **CTF / lab environments** you are permitted to test
 
-Do **NOT** run this against arbitrary third-party infrastructure. Unauthorized
-scanning may violate local laws and platform terms. You are responsible for
-your own actions.
+- ✅ Domains and systems that **you own**
+- ✅ **Authorized penetration tests** (written permission required)
+- ✅ **Bug-bounty programs** — targets explicitly within scope
+- ✅ **CTF / lab environments** you are allowed to test
 
----
+**NEVER use this against:**
+- ❌ Third-party websites you don't own
+- ❌ Any system without explicit written authorization
 
-## 📖 Project Description
-
-`recon-pipeline` is a single-command, orchestrated reconnaissance pipeline for
-**authorized** domain assessments. Give it one root domain and it:
-
-1. Enumerates subdomains (subfinder)
-2. Validates DNS resolution (dnsx)
-3. Probes live HTTP/HTTPS services (httpx-toolkit / httpx)
-4. Crawls confirmed-live URLs (katana)
-<!-- 5. Scans JavaScript assets for leaked secrets (mantra) -->
-
-Every stage writes to a **timestamped output directory**, keeps raw and clean
-results separate, logs everything, and never hides errors.
+Unauthorized scanning is **illegal** in most countries and can violate
+platform terms of service. You are solely responsible for how you use this
+tool.
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ How the Pipeline Works
 
 ```text
-Domain
-  ↓
-Subfinder
-  ↓
-Subdomains
-  ↓
-dnsx
-  ↓
-Resolved Domains
-  ↓
-httpx-toolkit
-  ↓
-Live HTTP/HTTPS
-  ↓
-Katana
-  ↓
-URLs
-  ↓
-Mantra
-  ↓
-Results
+        Domain (example.com)
+                │
+                ▼
+        ┌──────────────┐
+        │   subfinder  │  → Finds subdomains
+        └──────────────┘
+                │
+                ▼
+        subdomains.txt
+                │
+                ▼
+        ┌──────────────┐
+        │     dnsx     │  → Validates DNS resolution
+        └──────────────┘
+                │
+                ▼
+        resolved.txt
+                │
+                ▼
+        ┌──────────────┐
+        │ httpx-toolkit│  → Probes HTTP/HTTPS services
+        └──────────────┘
+                │
+                ▼
+        live_urls.txt
+                │
+                ▼
+        ┌──────────────┐
+        │    katana    │  → Crawls live URLs
+        └──────────────┘
+                │
+                ▼
+        katana.txt
+                │
+                ▼
+        ┌──────────────┐
+        │    mantra    │  → Scans JS files for secrets
+        └──────────────┘
+                │
+                ▼
+        mantra.txt + summary.txt
